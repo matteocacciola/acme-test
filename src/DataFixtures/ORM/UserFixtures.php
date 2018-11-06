@@ -21,8 +21,14 @@ class UserFixtures extends Fixture {
     public function load(ObjectManager $manager) {
         $users = array(
             array(
-                'email' => 'test@acme.com',
-                'password' => 'test'
+                'email' => 'admin@acme.com',
+                'password' => 'test',
+                'roles' => array(User::ROLE_ADMIN)
+            ),
+            array(
+                'email' => 'cashier@acme.com',
+                'password' => 'test',
+                'roles' => array(User::ROLE_CASH_REGISTER)
             )
         );
 
@@ -33,7 +39,10 @@ class UserFixtures extends Fixture {
                     $entity, $user['password']
             );
 
-            $entity->update($encodedPassword);
+            $entity
+                    ->update($encodedPassword)
+                    ->setRoles($user['roles'])
+            ;
 
             $manager->persist($entity);
         }

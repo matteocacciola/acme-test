@@ -8,6 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="App\Repository\VatClassRepository")
  */
 class VatClass {
+    
+    const VAT_SIX_PERCENT = 0.06;
+    const VAT_TWENTYONE_PERCENT = 0.21;
 
     /**
      * @ORM\Id()

@@ -9,6 +9,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface {
+    
+    const ROLE_ADMIN = 'ROLE_ADMIN';
+    const ROLE_CASH_REGISTER = 'ROLE_CASH_REGISTER';
 
     /**
      * @ORM\Id()
@@ -40,8 +43,6 @@ class User implements UserInterface {
      */
     public function __construct(string $email, string $password = '') {
         $this->update($password, $email);
-        
-        $this->roles = array('ROLE_USER');
     }
 
     /**

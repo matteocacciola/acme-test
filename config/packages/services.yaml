@@ -1,7 +1,7 @@
 parameters:
     locale: '%env(resolve:DEFAULT_LOCALE)%'
     web_path: '%kernel.root_dir%/../public'
-    domain: 'http://local.api.acme.com'
+    api_domain: 'http://local.api.acme.com'
 
 services:
     # default configuration for services in *this* file
