@@ -39,9 +39,9 @@ class Product {
 
     /**
      * 
-     * @return int
+     * @return int|null
      */
-    public function getId(): int {
+    public function getId() {
         return $this->id;
     }
 
@@ -49,7 +49,7 @@ class Product {
      * 
      * @return string
      */
-    public function getBarcode(): string {
+    public function getBarcode() {
         return $this->barcode;
     }
 
@@ -68,7 +68,7 @@ class Product {
      * 
      * @return string
      */
-    public function getName(): string {
+    public function getName() {
         return $this->name;
     }
 
@@ -87,7 +87,7 @@ class Product {
      * 
      * @return float
      */
-    public function getCost(): float {
+    public function getCost() {
         return $this->cost;
     }
 
@@ -106,7 +106,7 @@ class Product {
      * 
      * @return \App\Entity\VatClass
      */
-    public function getVatClass(): VatClass {
+    public function getVatClass() {
         return $this->vatClass;
     }
 
@@ -119,6 +119,19 @@ class Product {
         $this->vatClass = $vatClass;
 
         return $this;
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function serialize(): array {
+        return array(
+            'barcode' => $this->barcode,
+            'name' => $this->name,
+            'cost' => $this->cost,
+            'vat' => $this->getVatClass()->getPercentage()
+        );
     }
 
 }

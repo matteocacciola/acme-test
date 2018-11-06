@@ -16,3 +16,8 @@
 /nbproject/
 /nbproject/*
 /nbproject/private/
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###

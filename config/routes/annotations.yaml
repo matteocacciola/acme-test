@@ -1,4 +1,4 @@
 app.api:
-    resource: '../../src/Controller/'
+    resource: '../../src/Controller/Api/'
     type:     annotation
-    prefix:   /
+    prefix:   /api
