@@ -1,0 +1,19 @@
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: false
+        autoconfigure: false
+        public: true
+    
+    Acme\Bundle\ResourceBundle\Command\:
+        resource: '%kernel.project_dir%/src/Acme/Bundle/ResourceBundle/Command'
+        public: true
+        autowire: true
+        autoconfigure: true
+        tags: [ 'console.command' ]
+    
+    acme.token.authenticator:
+        class: Acme\Bundle\ResourceBundle\Security\TokenAuthenticator
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $jwtEncoder: '@lexik_jwt_authentication.encoder'

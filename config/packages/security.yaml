@@ -1,0 +1,31 @@
+security:
+    encoders:
+        Acme\Bundle\UserBundle\Entity\User:
+            algorithm: bcrypt
+            cost: 12
+
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_USER]
+        
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        acme_user_provider:
+            entity:
+                class: Acme\Bundle\UserBundle\Entity\User
+                property: email
+        
+    firewalls:
+        api:
+            pattern:   ^/api
+            stateless: true
+            anonymous: ~
+            guard:
+                authenticators:
+                    - acme.token.authenticator
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+    access_control:
+        - { path: ^/api/token, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
