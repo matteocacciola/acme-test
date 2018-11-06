@@ -1,4 +1,4 @@
-acme.api:
-    resource: '@ApiBundle/Controller'
+app.api:
+    resource: '../../src/Controller/'
     type:     annotation
-    prefix:   /api
+    prefix:   /

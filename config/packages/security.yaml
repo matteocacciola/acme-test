@@ -1,6 +1,6 @@
 security:
     encoders:
-        Acme\Bundle\UserBundle\Entity\User:
+        App\Entity\User:
             algorithm: bcrypt
             cost: 12
 
@@ -9,9 +9,9 @@ security:
         
     providers:
         # used to reload user from session & other features (e.g. switch_user)
-        acme_user_provider:
+        app_user_provider:
             entity:
-                class: Acme\Bundle\UserBundle\Entity\User
+                class: App\Entity\User
                 property: email
         
     firewalls:
@@ -21,7 +21,7 @@ security:
             anonymous: ~
             guard:
                 authenticators:
-                    - acme.token.authenticator
+                    - app.token.authenticator
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false

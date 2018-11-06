@@ -1,15 +1,18 @@
 <?php
 
-namespace Acme\Bundle\ApiBundle\Controller;
+namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\Security\Core\User\UserChecker;
-use Acme\Bundle\UserBundle\Entity\User;
+use App\Entity\User;
 
-class DefaultController extends AbstractController {
+/**
+ * @Route("/api")
+ */
+class ApiController extends AbstractController {
 
     /**
      * @Route("/token", name="acme.api.token_authentication")

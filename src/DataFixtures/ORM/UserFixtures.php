@@ -1,11 +1,11 @@
 <?php
 
-namespace Acme\Bundle\UserBundle\DataFixtures\ORM;
+namespace App\DataFixtures\ORM;
 
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
-use Acme\Bundle\UserBundle\Entity\User;
+use App\Entity\User;
 
 class UserFixtures extends Fixture {
 

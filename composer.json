@@ -22,6 +22,7 @@
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "symfony/dotenv": "*",
+        "symfony/maker-bundle": "^1.9",
         "symfony/profiler-pack": "^1.0",
         "symfony/web-server-bundle": "*"
     },
@@ -33,12 +34,12 @@
     },
     "autoload": {
         "psr-4": {
-            "": "src/"
+            "App\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "": "tests/"
+            "App\\Tests\\": "tests/"
         }
     },
     "replace": {

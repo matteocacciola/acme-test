@@ -1,12 +1,12 @@
 <?php
 
-namespace Acme\Bundle\UserBundle\Entity;
+namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @ORM\Entity(repositoryClass="Acme\Bundle\UserBundle\Repository\UserRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface {
 
@@ -44,10 +44,18 @@ class User implements UserInterface {
         $this->roles = array('ROLE_USER');
     }
 
+    /**
+     * 
+     * @return type
+     */
     public function getId() {
         return $this->id;
     }
 
+    /**
+     * 
+     * @return string
+     */
     public function getEmail(): string {
         return $this->email;
     }

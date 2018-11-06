@@ -2,3 +2,35 @@ parameters:
     locale: '%env(resolve:DEFAULT_LOCALE)%'
     web_path: '%kernel.root_dir%/../public'
     domain: 'http://local.api.acme.com'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: false
+        autoconfigure: false
+        public: true
+    
+    App\Command\:
+        resource: '%kernel.project_dir%/src/Command/*'
+        public: true
+        autowire: true
+        autoconfigure: true
+        tags: [ 'console.command' ]
+    
+    App\DataFixtures\ORM\:
+        resource: '%kernel.project_dir%/src/DataFixtures/ORM/*'
+        autowire: true
+        autoconfigure: true
+    
+    App\Repository\:
+        resource: '%kernel.project_dir%/src/Repository/*'
+        public: true
+        autowire: true
+        autoconfigure: true
+        tags: [ 'doctrine.repository_service' ]
+    
+    app.token.authenticator:
+        class: App\Security\TokenAuthenticator
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $jwtEncoder: '@lexik_jwt_authentication.encoder'

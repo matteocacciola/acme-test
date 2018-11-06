@@ -1,6 +1,6 @@
 <?php
 
-namespace Acme\Bundle\ResourceBundle\Security;
+namespace App\Security;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\AuthorizationHeaderTokenExtractor;
-use Acme\Entity\User;
+use App\Entity\User;
 
 class TokenAuthenticator extends AbstractGuardAuthenticator {
 
