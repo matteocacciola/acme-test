@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table("acme_promotion")
  * @ORM\Entity(repositoryClass="App\Repository\PromotionRepository")
  */
 class Promotion {
@@ -20,7 +21,7 @@ class Promotion {
     private $id;
 
     /**
-     * @var
+     * @var string
      *
      * @ORM\Column(name="promotion_type", type="string", length=255, nullable=false)
      */
@@ -65,7 +66,7 @@ class Promotion {
      * @var \Doctrine\Common\Collections\ArrayCollection
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\Product")
-     * @ORM\JoinTable(name="promotion_concerned_products",
+     * @ORM\JoinTable(name="acme_promotion_concerned_products",
      *      joinColumns = {@ORM\JoinColumn(name="promotion_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns = {@ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="CASCADE")}
      * )
@@ -140,13 +141,13 @@ class Promotion {
      * @var \Doctrine\Common\Collections\ArrayCollection
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Product")
-     * @ORM\JoinTable(name="consequent_discounted_product",
+     * @ORM\JoinTable(name="acme_consequent_discounted_product",
      *      joinColumns = {@ORM\JoinColumn(name="promotion_id", referencedColumnName="id", onDelete="CASCADE")},
      *      inverseJoinColumns = {@ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="CASCADE")}
      * )
      *
      */
-    private $consequentDiscountedProduct = null;
+    private $consequentDiscountedProducts;
 
     /**
      * @var integer
@@ -166,6 +167,7 @@ class Promotion {
      */
     public function __construct() {
         $this->concernedProducts = new ArrayCollection();
+        $this->consequentDiscountedProducts = new ArrayCollection();
     }
 
     /**
@@ -205,6 +207,24 @@ class Promotion {
      */
     public function getConcernedProducts() {
         return $this->concernedProducts;
+    }
+    
+    /**
+     * @param Product $concernedProduct
+     */
+    public function addConcernedProduct(Product $concernedProduct) {
+        $this->concernedProducts->add($concernedProduct);
+
+        return $this;
+    }
+    
+    /**
+     * @param Product $concernedProduct
+     */
+    public function removeConcernedProduct(Product $concernedProduct) {
+        $this->concernedProducts->remove($concernedProduct);
+
+        return $this;
     }
 
     /**
@@ -488,15 +508,33 @@ class Promotion {
     /**
      * @return ArrayCollection
      */
-    public function getConsequentDiscountedProduct() {
-        return $this->consequentDiscountedProduct;
+    public function getConsequentDiscountedProducts() {
+        return $this->consequentDiscountedProducts;
+    }
+    
+    /**
+     * @param Product $consequentDiscountedProduct
+     */
+    public function addConsequentDiscountedProduct(Product $consequentDiscountedProduct) {
+        $this->consequentDiscountedProducts->add($consequentDiscountedProduct);
+
+        return $this;
+    }
+    
+    /**
+     * @param Product $consequentDiscountedProduct
+     */
+    public function removeConsequentDiscountedProduct(Product $consequentDiscountedProduct) {
+        $this->consequentDiscountedProducts->remove($consequentDiscountedProduct);
+
+        return $this;
     }
 
     /**
      * @param ArrayCollection $consequentDiscountedProduct
      */
-    public function setConsequentDiscountedProduct($consequentDiscountedProduct) {
-        $this->consequentDiscountedProduct = $consequentDiscountedProduct;
+    public function setConsequentDiscountedProducts(ArrayCollection $consequentDiscountedProducts) {
+        $this->consequentDiscountedProducts = $consequentDiscountedProducts;
 
         return $this;
     }
@@ -518,6 +556,48 @@ class Promotion {
         $this->mixAndMatch = $mixAndMatch;
 
         return $this;
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function serialize(): array {
+        $serialization = array(
+            'id' => $this->id,
+            'concernedProducts' => array(),
+            'consequentAppliedQuantity' => $this->consequentAppliedQuantity,
+            'consequentDiscountedProducts' => array(),
+            'createDate' => $this->createDate->format('c'),
+            'deleteDate' => is_null($this->deleteDate) ? null : $this->deleteDate->format('c'),
+            'discountInPercentage' => $this->discountInPercentage,
+            'discountValue' => $this->discountValue,
+            'endDate' => is_null($this->endDate) ? null : $this->endDate->format('c'),
+            'mixAndMatch' => $this->mixAndMatch,
+            'name' => $this->name,
+            'onlyOnTaxableItems' => $this->onlyOnTaxableItems,
+            'promotionType' => $this->promotionType,
+            'requiredQuantity' => $this->requiredQuantity,
+            'resultingPrice' => $this->resultingPrice,
+            'resultingQuantity' => $this->resultingQuantity,
+            'startDate' => is_null($this->startDate) ? null : $this->startDate->format('c'),
+            'status' => $this->status,
+            'updateDate' => is_null($this->updateDate) ? null : $this->updateDate->format('c'),
+        );
+        
+        $serializedProducts = array();
+        foreach ($this->getConcernedProducts() as $concernedProduct) {
+            $serializedProducts[] = $concernedProduct->serialize();
+        }
+        $serialization['concernedProducts'] = $serializedProducts;
+        
+        $serializedProducts = array();
+        foreach ($this->getConsequentDiscountedProduct() as $discountedProduct) {
+            $serializedProducts[] = $discountedProduct->serialize();
+        }
+        $serialization['consequentDiscountedProducts'] = $serializedProducts;
+        
+        return $serialization;
     }
 
 }

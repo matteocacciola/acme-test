@@ -3,6 +3,7 @@
 namespace App\Manager;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityRepository;
 use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\Product;
@@ -54,7 +55,7 @@ class OrderManager {
         $this->em->getConnection()->beginTransaction();
 
         try {
-            $this->em->getConnection()->exec('LOCK TABLE order AS b0_ READ, order WRITE, order_items WRITE, bo_bebe_order_applied_gift_card WRITE, bo_bebe_order_comment WRITE, bo_bebe_order_delivery_zone WRITE, bo_bebe_order_discount WRITE, oversized_products_order WRITE, bo_bebe_shopping_cart WRITE');
+            $this->em->getConnection()->exec('LOCK TABLES acme_order AS a0_ READ, acme_order WRITE, acme_order_item WRITE, acme_order_discount WRITE');
             $order->setInvoiceNumber($this->createOrderNumber());
             $this->em->persist($order);
             $this->em->flush();
@@ -84,7 +85,7 @@ class OrderManager {
 
         if (($status == Order::STATUS_NOTPAID) || ($status == Order::STATUS_WAITING_FOR_PAYMENT)) {
             if ($order->hasItemProduct($product)) {
-                $orderItem = $this->em->getRepository(OrderItem::class)
+                $orderItem = $this->getRepository(OrderItem::class)
                         ->findOneBy(array('order' => $order, 'product' => $product))
                 ;
                 $orderItem->increaseQuantity();
@@ -108,10 +109,11 @@ class OrderManager {
      */
     public function increaseItemQuantity(OrderItem $item, Order &$order, $howMany = 1, $persistent = true) {
         $status = $order->getStatus();
-
+        
         if (($status == Order::STATUS_NOTPAID) || ($status == Order::STATUS_WAITING_FOR_PAYMENT)) {
             if ($order->containsItem($item)) {
                 $item->increaseQuantity($howMany);
+                $this->em->flush();
             } else {
                 $order->addItem($item);
             }
@@ -149,7 +151,7 @@ class OrderManager {
 
         if (($status == Order::STATUS_NOTPAID) || ($status == Order::STATUS_WAITING_FOR_PAYMENT)) {
             if ($order->hasItemProduct($product)) {
-                $orderItem = $this->em->getRepository(OrderItem::class)
+                $orderItem = $this->getRepository(OrderItem::class)
                         ->findOneBy(array('order' => $order, 'product' => $product))
                 ;
                 
@@ -160,6 +162,36 @@ class OrderManager {
             }
         } else {
             throw new \Exception('The current order cannot be changed', Response::HTTP_METHOD_NOT_ALLOWED);
+        }
+    }
+    
+    /**
+     * 
+     * @param \DateTimeInterface $start
+     * @param \DateTimeInterface $end
+     * @return float
+     * @throws \Exception
+     */
+    public function calculateProfitMarginPeriod(\DateTimeInterface $start = null, \DateTimeInterface $end = null): float {
+        try {
+            if (is_null($end)) {
+                $end = new \DateTimeImmutable();
+            }
+
+            if (is_null($start)) {
+                $start = $end->sub(new \DateInterval('PT1H'));
+            }
+            
+            if ($start > $end) {
+                $temp = $start;
+                $start = $end;
+                $end = $temp;
+            }
+
+            $orders = $this->getRepository()->findFinalizedBetweenDates($start, $end);
+            return $this->calculateProfitMargin($orders);
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
 
@@ -193,8 +225,12 @@ class OrderManager {
         $vatAmounts = [];
         foreach ($order->getItems() as $item) {
             $vatPercentage = $item->getProduct()->getVatClass()->getPercentage();
-            $vatClass = number_format($vatPercentage, 2);
-            $vatAmounts[$vatClass] += $item->getSubtotalAfterDiscount() * $vatPercentage;
+            $vatClass = number_format($vatPercentage * 100, 0) . '%';
+            if (isset($vatAmounts[$vatClass])) {
+                $vatAmounts[$vatClass] += $item->getSubtotalAfterDiscount() * $vatPercentage;
+            } else {
+                $vatAmounts[$vatClass] = $item->getSubtotalAfterDiscount() * $vatPercentage;
+            }
         }
 
         return $vatAmounts;
@@ -255,7 +291,7 @@ class OrderManager {
             throw new \Exception('Receipt id is mandatory', Response::HTTP_BAD_REQUEST);
         }
 
-        $order = $this->em->getRepository(Order::class)->findOneBy(array(
+        $order = $this->getRepository()->findOneBy(array(
             'invoiceNumber' => $invoiceNumber
         ));
         if (!($order)) {
@@ -287,6 +323,15 @@ class OrderManager {
      */
     private function calculateProfitMarginFromItem(OrderItem $orderItem) {
         return $orderItem->getSubtotalAfterDiscount();
+    }
+    
+    /**
+     * 
+     * @param string $class
+     * @return EntityRepository
+     */
+    private function getRepository(string $class = Order::class): EntityRepository {
+        return $this->em->getRepository($class);
     }
 
 }

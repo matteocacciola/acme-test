@@ -12,9 +12,14 @@ trait ControllerTrait {
      * @return string
      */
     protected function getExceptionCode(\Exception $ex) {
-        $code = ($ex->getCode() > 0)
-                ? $ex->getCode()
-                : method_exists($ex, 'getStatusCode') ? $ex->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+        if ($ex->getCode() > 0) {
+            $code = $ex->getCode();
+        } else {
+            $code = method_exists($ex, 'getStatusCode')
+                    ? $ex->getStatusCode()
+                    : Response::HTTP_INTERNAL_SERVER_ERROR
+            ;
+        }
         
         return $code;
     }

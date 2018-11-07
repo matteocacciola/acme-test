@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Entity\OrderItem;
 
 /**
+ * @ORM\Table("acme_order")
  * @ORM\Entity(repositoryClass="App\Repository\OrderRepository")
  */
 class Order {
@@ -45,15 +46,15 @@ class Order {
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection | OrderItem[]
      * 
-     * @ORM\OneToMany(targetEntity="App\Entity\OrderItem", mappedBy="order", cascade={"persist", "remove"})
-     * @ORM\OrderBy({"added_at_date" = "ASC"})
+     * @ORM\OneToMany(targetEntity="App\Entity\OrderItem", mappedBy="order", cascade={"persist", "remove"}, orphanRemoval=true)
+     * @ORM\OrderBy({"addedAtDate" = "ASC"})
      */
     private $items;
 
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection | OrderDiscount[]
      * 
-     * @ORM\OneToMany(targetEntity="App\Entity\OrderDiscount", mappedBy="order", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\OrderDiscount", mappedBy="order", cascade={"persist", "remove"}, orphanRemoval=true)
      */
     private $discounts;
 
@@ -77,42 +78,42 @@ class Order {
     /**
      * @var float
      * 
-     * @ORM\Column(type="float", name="taxes_amount", nullable=false, options={"default": 0})
+     * @ORM\Column(type="float", name="taxes_amount", nullable=true, options={"default": 0})
      */
     private $taxesAmount;
 
     /**
      * @var float
      * 
-     * @ORM\Column(type="float", name="discounts_amount", nullable=false, options={"default": 0})
+     * @ORM\Column(type="float", name="discounts_amount", nullable=true, options={"default": 0})
      */
     private $discountsAmount;
 
     /**
      * @var float
      * 
-     * @ORM\Column(type="float", name="subtotal", nullable=false, options={"default": 0})
+     * @ORM\Column(type="float", name="subtotal", nullable=true, options={"default": 0})
      */
     private $subtotal;
 
     /**
      * @var float
      * 
-     * @ORM\Column(type="float", name="subtotal_after_discounts", nullable=false, options={"default": 0})
+     * @ORM\Column(type="float", name="subtotal_after_discounts", nullable=true, options={"default": 0})
      */
     private $subtotalAfterDiscounts;
 
     /**
      * @var float
      * 
-     * @ORM\Column(type="float", name="final_price_before_taxes", nullable=false, options={"default": 0})
+     * @ORM\Column(type="float", name="final_price_before_taxes", nullable=true, options={"default": 0})
      */
     private $finalPriceBeforeTaxes;
 
     /**
      * @var float
      * 
-     * @ORM\Column(type="float", name="final_price", nullable=false, options={"default": 0})
+     * @ORM\Column(type="float", name="final_price", nullable=true, options={"default": 0})
      */
     private $finalPrice;
 
@@ -135,6 +136,7 @@ class Order {
      */
     public function __construct() {
         $this->items = new ArrayCollection();
+        $this->discounts = new ArrayCollection();
         $this->status = self::STATUS_NOTPAID;
         $this->createDate = new \DateTime();
     }
@@ -156,6 +158,26 @@ class Order {
         $discount->setOrder($this);
 
         return $this;
+    }
+
+    /**
+     * 
+     * @param \App\Entity\OrderDiscount $discount
+     * @return $this
+     */
+    public function removeDiscount(OrderDiscount $discount) {
+        $this->discounts->remove($discount);
+        $discount->setOrder(null);
+
+        return $this;
+    }
+
+    /**
+     * 
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getDiscounts() {
+        return $this->discounts;
     }
 
     /**
@@ -211,7 +233,12 @@ class Order {
      * @return Order
      */
     public function setItems($items) {
-        $this->items = $items;
+        foreach ($items as $item) {
+            if ($item instanceof OrderItem) {
+                $this->addItem($item);
+            }
+        }
+        
         return $this;
     }
 
@@ -235,6 +262,8 @@ class Order {
      */
     public function removeItem(OrderItem $item) {
         $this->items->removeElement($item);
+        
+        $item->setOrder(null);
 
         return $this;
     }
@@ -244,7 +273,7 @@ class Order {
      * @param \App\Entity\OrderItem $item
      */
     public function containsItem(OrderItem $item) {
-        $this->items->contains($item) ? true : false;
+        return $this->items->contains($item);
     }
 
     /**
@@ -473,6 +502,45 @@ class Order {
     public function getUser() {
         return $this->user;
     }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function serialize(): array {
+        $serialization = array(
+            'id' => $this->id,
+            'invoiceNumber' => $this->invoiceNumber,
+            'billingAddress' => $this->billingAddress,
+            'shippingAddress' => $this->shippingAddress,
+            'createDate' => $this->createDate->format('c'),
+            'status' => $this->status,
+            'statusUpdatedAt' => is_null($this->statusUpdateDate) ? null : $this->statusUpdateDate->format('c'),
+            'discountsAmount' => $this->getDiscountsAmount(),
+            'finalPrice' => $this->getFinalPrice(),
+            'finalPriceBeforeTaxes' => $this->getFinalPriceBeforeTaxes(),
+            'items' => array(),
+            'subtotal' => $this->getSubtotal(),
+            'subtotalAfterDiscounts' => $this->getSubtotalAfterDiscounts(),
+            'taxesAmount' => $this->getTaxesAmount(),
+            'user' => $this->getUser()->__toString(),
+            'discounts' => array()
+        );
+        
+        $serializedItems = array();
+        foreach ($this->getItems() as $item) {
+            $serializedItems[] = $item->serialize();
+        }
+        $serialization['items'] = $serializedItems;
+        
+        $serializedDiscounts = array();
+        foreach ($this->getDiscounts() as $item) {
+            $serializedDiscounts[] = $item->serialize();
+        }
+        $serialization['discounts'] = $serializedDiscounts;
+        
+        return $serialization;
+    }
 
     /**
      * 
@@ -490,7 +558,12 @@ class Order {
         } */
         $shippingPrice = $oversizedShippingPrice = 0;
 
-        $price = $this->getSubtotal() - $this->calcDiscountsTotalAmount() + $shippingPrice + $oversizedShippingPrice + $this->taxes;
+        $price = $this->getSubtotal()
+                - $this->calcDiscountsTotalAmount()
+                + $shippingPrice
+                + $oversizedShippingPrice
+                + $this->taxesAmount
+        ;
 
         return ($price > 0) ? $price : 0;
     }
@@ -525,7 +598,11 @@ class Order {
         } */
         $shippingPrice = $oversizedShippingPrice = 0;
 
-        return $this->getSubtotal() - $this->calcDiscountsTotalAmount() + $shippingPrice + $oversizedShippingPrice;
+        return $this->getSubtotal()
+                - $this->calcDiscountsTotalAmount()
+                + $shippingPrice
+                + $oversizedShippingPrice
+        ;
     }
 
     /**

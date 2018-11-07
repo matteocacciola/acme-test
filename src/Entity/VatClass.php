@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table("acme_vat_class")
  * @ORM\Entity(repositoryClass="App\Repository\VatClassRepository")
  */
 class VatClass {

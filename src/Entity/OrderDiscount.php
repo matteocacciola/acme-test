@@ -6,6 +6,7 @@ use App\Model\Discount;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table("acme_order_discount")
  * @ORM\Entity
  */
 class OrderDiscount {
@@ -167,7 +168,7 @@ class OrderDiscount {
      * @param \App\Entity\Order $order
      * @return OrderDiscount
      */
-    public function setOrder($order) {
+    public function setOrder($order = null) {
         $this->order = $order;
         return $this;
     }
@@ -177,6 +178,21 @@ class OrderDiscount {
      */
     public function getOrder() {
         return $this->order;
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function serialize(): array {
+        return array(
+            'id' => $this->id,
+            'discountAmount' => $this->discountAmount,
+            'promotionName' => $this->promotionName,
+            'promotionType' => $this->promotionType,
+            'promotionStartDate' => is_null($this->promotionStartDate) ? null : $this->promotionStartDate->format('c'),
+            'promotionEndDate' => is_null($this->promotionEndDate) ? null : $this->promotionEndDate->format('c')
+        );
     }
 
 }

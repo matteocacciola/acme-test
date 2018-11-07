@@ -134,9 +134,11 @@ class ApiTestCase extends KernelTestCase {
      * @return type
      */
     private function getClientRequest(array $auth, string $module, string $action, array $toSendData = []) {
-        $apiRequest = $this->client->get(
-                $this->baseUrl . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . $action . '?' . http_build_query($toSendData),
+        $apiRequest = $this->client->request(
+                'GET',
+                $this->baseUrl . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . $action,
                 array(
+                    'query' => $toSendData,
                     'headers' => $this->getAuthorizedHeaders($auth)
                 )
         );
@@ -153,7 +155,8 @@ class ApiTestCase extends KernelTestCase {
      * @return type
      */
     private function postClientRequest(array $auth, string $module, string $action, array $toSendData = []) {
-        $apiRequest = $this->client->post(
+        $apiRequest = $this->client->request(
+                'POST',
                 $this->baseUrl . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . $action,
                 array(
                     'form_params' => $toSendData,
@@ -173,10 +176,11 @@ class ApiTestCase extends KernelTestCase {
      * @return type
      */
     private function putClientRequest(array $auth, string $module, string $action, array $toSendData = []) {
-        $apiRequest = $this->client->put(
+        $apiRequest = $this->client->request(
+                'PUT',
                 $this->baseUrl . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . $action,
                 array(
-                    'body' => json_encode($toSendData),
+                    'form_params' => $toSendData,
                     'headers' => $this->getAuthorizedHeaders($auth)
                 )
         );
@@ -191,12 +195,17 @@ class ApiTestCase extends KernelTestCase {
      * @return array
      */
     private function getAuthorizedHeaders(array $auth, array $headers = array()): array {
-        $apiRequest = $this->client->get(
-                $this->baseUrl . DIRECTORY_SEPARATOR . 'authentication/token?' . http_build_query($auth)
+        $apiRequest = $this->client->request(
+                'GET',
+                $this->baseUrl . DIRECTORY_SEPARATOR . 'authentication/token',
+                array('query' => $auth)
         );
         $token = json_decode($apiRequest->getBody(), true)['token'];
         
-        $headers['Authorization'] = 'Bearer ' . $token;
+        $headers = array_merge(
+                $headers,
+                array('Authorization' => 'Bearer ' . $token)
+        );
         return $headers;
     }
 

@@ -12,7 +12,7 @@ use App\Manager\OrderManager;
 use App\Manager\ProductManager;
 
 /**
- * @Route("/receipt")
+ * @Route("/order")
  */
 class OrderController extends AbstractController {
     
@@ -186,11 +186,13 @@ class OrderController extends AbstractController {
         try {
             $invoiceNumber = $request->get('id');
             
-            /** @var ProductManager */
-            $manager = $this->get('app.manager.product');
+            /** @var OrderManager */
+            $manager = $this->get('app.manager.order');
             $order = $manager->findOneByInvoiceNumberOrThrowException($invoiceNumber);
             
             $body = $order->serialize();
+            $body['vatPerClass'] = $manager->getTotalVatPerClass($order);
+            
             $code = Response::HTTP_OK;
         } catch (\Exception $ex) {
             $code = $this->getExceptionCode($ex);
@@ -199,5 +201,42 @@ class OrderController extends AbstractController {
         
         return $this->json($body, $code);
     }
+    
+    /**
+     * 
+     * Get a single receipt
+     * 
+     * @Route("/get-turnover", name="acme.api.receipt.getturnover")
+     * @Method({"GET"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function getTurnover(Request $request) {
+        try {
+            $startDateString = $request->get('startDate');
+            $endDateString = $request->get('endDate');
+            
+            $endDate = is_null($endDateString)
+                    ? new \DateTimeImmutable()
+                    : \DateTimeImmutable::createFromFormat('c', $endDateString)
+            ;
+            
+            $startDate = is_null($startDateString)
+                    ? $endDate->sub(new \DateInterval('PT1H'))
+                    : \DateTimeImmutable::createFromFormat('c', $endDateString)
+            ;
+            
+            /** @var OrderManager */
+            $manager = $this->get('app.manager.order');
+            $body['turnover'] = $manager->calculateProfitMarginPeriod($startDate, $endDate);
+            $code = Response::HTTP_OK;
+        } catch (\Exception $ex) {
+            $code = $this->getExceptionCode($ex);
+            $body = $ex->getMessage();
+        }
+        
+        return $this->json($body, $code);
+    }
+    
+    
     
 }

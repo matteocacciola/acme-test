@@ -17,5 +17,25 @@ class OrderRepository extends ServiceEntityRepository {
     public function __construct(RegistryInterface $registry) {
         parent::__construct($registry, Order::class);
     }
+    
+    /**
+     * 
+     * @param \DateTimeInterface $start
+     * @param \DateTimeInterface $end
+     * @return Order[]
+     */
+    public function findFinalizedBetweenDates(\DateTimeInterface $start, \DateTimeInterface $end) {
+        $qb = $this->createQueryBuilder('orderObj');
+        
+        return $qb
+                ->where($qb->expr()->between('orderObj.statusUpdateDate', ':startDate', ':endDate'))
+                ->andWhere($qb->expr()->in('orderObj.status', ':finalized'))
+                ->setParameter('startDate', $start)
+                ->setParameter('endDate', $end)
+                ->setParameter('finalized', array(Order::STATUS_COMPLETED, Order::STATUS_PAID))
+                ->getQuery()
+                ->getResult()
+        ;
+    }
 
 }

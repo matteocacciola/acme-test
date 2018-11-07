@@ -5,11 +5,13 @@ namespace App\Manager;
 use App\Entity\Product;
 use App\Model\PromotionInterface;
 use App\Entity\Order;
+use App\Entity\Promotion;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 class PromotionManager {
 
-    /** @var  EntityManager */
+    /** @var EntityManager */
     private $em;
 
     /** @var PromotionInterface[] */
@@ -50,7 +52,7 @@ class PromotionManager {
      * @return Product[]
      */
     public function findAllProductsOnWhichAPromotionIsApplied() {
-        $promotionRepository = $this->em->getRepository(Product::class);
+        $promotionRepository = $this->getRepository(Product::class);
 
         $products = array();
         foreach ($this->getActivePromotions() as $activePromotion) {
@@ -156,6 +158,15 @@ class PromotionManager {
                 }
             }
         }
+    }
+    
+    /**
+     * 
+     * @param string $class
+     * @return EntityRepository
+     */
+    private function getRepository(string $class = Promotion::class): EntityRepository {
+        return $this->em->getRepository($class);
     }
 
 }

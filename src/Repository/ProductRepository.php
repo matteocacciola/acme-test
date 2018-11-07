@@ -6,6 +6,7 @@ use App\Entity\Product;
 use App\Entity\Promotion;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\ORM\Query\Expr;
 
 /**
  * @method Product|null find($id, $lockMode = null, $lockVersion = null)

@@ -43,5 +43,16 @@ class Discount {
     public function getPromotionReason() {
         return $this->promotionReason;
     }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function serialize(): array{
+        return array(
+            'discountAmount' => $this->discountAmount,
+            'promotion' => is_null($this->promotionReason) ? null : $this->promotionReason->serialize()
+        );
+    }
 
 }

@@ -9,7 +9,7 @@ use App\Entity\Product;
 class ProductApiTest extends ApiTestCase {
     
     /**
-     * 
+     * This test is used to create a brand new product
      */
     public function testCreate() {
         $vat = $this->em
@@ -30,7 +30,7 @@ class ProductApiTest extends ApiTestCase {
     }
     
     /**
-     * 
+     * This test is used to get all existing products
      */
     public function testGetAll() {
         $response = $this->getFromApi($this->adminAuth, 'product', 'get-all');
@@ -40,7 +40,7 @@ class ProductApiTest extends ApiTestCase {
     }
     
     /**
-     * 
+     * This test is used to retrieve a single product, given its barcode
      */
     public function testGetSingle() {
         $product = $this->em

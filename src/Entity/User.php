@@ -7,6 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
+ * @ORM\Table("acme_user")
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface {
@@ -155,6 +156,14 @@ class User implements UserInterface {
      */
     public function getOrders() {
         return $this->orders;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function __toString(): string {
+        return $this->email;
     }
 
 }

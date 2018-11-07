@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table("acme_product")
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  */
 class Product {
@@ -135,6 +136,7 @@ class Product {
      */
     public function serialize(): array {
         return array(
+            'id' => $this->id,
             'barcode' => $this->barcode,
             'name' => $this->name,
             'cost' => $this->cost,

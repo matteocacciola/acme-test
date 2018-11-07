@@ -3,11 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Promotion;
-use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query\Expr;
 
 /**
  * @method Promotion|null find($id, $lockMode = null, $lockVersion = null)
@@ -37,15 +34,20 @@ class PromotionRepository extends ServiceEntityRepository {
                         $qb->expr()->andX(
                                 $qb->expr()->eq('p.status', true), $qb->expr()->orX(
                                         $qb->expr()->andX(
-                                                $qb->expr()->isNull('p.startDate'), $qb->expr()->isNull('p.endDate')
+                                                $qb->expr()->isNull('p.startDate'),
+                                                $qb->expr()->isNull('p.endDate')
                                         ), $qb->expr()->andX(
-                                                $qb->expr()->isNull('p.startDate'), $qb->expr()->gte('p.endDate', ':dateNow')
+                                                $qb->expr()->isNull('p.startDate'),
+                                                $qb->expr()->gte('p.endDate', ':dateNow')
                                         ), $qb->expr()->andX(
-                                                $qb->expr()->lte('p.startDate', ':dateNow'), $qb->expr()->isNull('p.endDate')
+                                                $qb->expr()->lte('p.startDate', ':dateNow'),
+                                                $qb->expr()->isNull('p.endDate')
                                         ), $qb->expr()->andX(
-                                                $qb->expr()->lte('p.startDate', ':dateNow'), $qb->expr()->gte('p.endDate', ':dateNow')
+                                                $qb->expr()->lte('p.startDate', ':dateNow'),
+                                                $qb->expr()->gte('p.endDate', ':dateNow')
                                         )
-                                ), $qb->expr()->eq('p.promotionType', $qb->expr()->literal($type))
+                                ),
+                                $qb->expr()->eq('p.promotionType', $qb->expr()->literal($type))
                         )
                 )
         ;

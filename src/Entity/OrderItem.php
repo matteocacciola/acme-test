@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Model\Discount;
 
 /**
+ * @ORM\Table("acme_order_item")
  * @ORM\Entity(repositoryClass="App\Repository\OrderItemRepository")
  */
 class OrderItem {
@@ -81,8 +82,11 @@ class OrderItem {
      * @var float
      */
     private $discountsAllocation = 0;
+    
+    /**
+     * @var float
+     */
     private $taxAllocation = 0;
-
 
     /**
      * 
@@ -90,6 +94,7 @@ class OrderItem {
      */
     public function __construct(Product $product) {
         $this->setProduct($product);
+        $this->quantity = 1;
     }
 
     /**
@@ -121,6 +126,7 @@ class OrderItem {
      */
     public function setProduct(Product $product) {
         $this->product = $product;
+        $this->name = $product->getName();
         return $this;
     }
 
@@ -178,8 +184,11 @@ class OrderItem {
      * @param mixed $order
      * @return OrderItem
      */
-    public function setOrder($order) {
+    public function setOrder($order = null) {
         $this->order = $order;
+        
+        $this->addedAtDate = new \DateTime();
+        
         return $this;
     }
 
@@ -295,6 +304,24 @@ class OrderItem {
      */
     public function getAddedAtDate() {
         return $this->addedAtDate;
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function serialize(): array {
+        return array(
+            'id' => $this->id,
+            'addedAtDate' => is_null($this->addedAtDate) ? null : $this->addedAtDate->format('c'),
+            'discount' => is_null($this->discount) ? null : $this->discount->serialize(),
+            'discountAllocation' => $this->discountsAllocation,
+            'name' => $this->name,
+            'product' => $this->product->serialize(),
+            'quantity' => $this->quantity,
+            'status' => $this->status,
+            'taxAllocation' => $this->taxAllocation
+        );
     }
 
 }
