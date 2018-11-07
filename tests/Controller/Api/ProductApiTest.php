@@ -11,7 +11,7 @@ class ProductApiTest extends ApiTestCase {
     /**
      * 
      */
-    public function testAddProduct() {
+    public function testCreate() {
         $vat = $this->em
                 ->getRepository(VatClass::class)
                 ->findOneBy(array('percentage' => VatClass::VAT_TWENTYONE_PERCENT))
@@ -32,7 +32,7 @@ class ProductApiTest extends ApiTestCase {
     /**
      * 
      */
-    public function testGetAllProducts() {
+    public function testGetAll() {
         $response = $this->getFromApi($this->adminAuth, 'product', 'get-all');
         $products = json_decode($response, true);
         
@@ -42,7 +42,7 @@ class ProductApiTest extends ApiTestCase {
     /**
      * 
      */
-    public function testGetSingleProduct() {
+    public function testGetSingle() {
         $product = $this->em
                 ->getRepository(Product::class)
                 ->find(1)

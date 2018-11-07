@@ -6,6 +6,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\Product;
+use App\Entity\User;
 use App\Manager\PromotionManager;
 use App\Manager\TaxManager;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,15 +38,18 @@ class OrderManager {
      * @return Order
      * @throws \Exception
      */
-    public function createNew($shippingAddress, $billingAddress, $products = array()) {
+    public function createNew(User $user, $shippingAddress, $billingAddress, $products = array()) {
         $order = new Order();
 
         foreach ($products as $product) {
             $this->addItem($product, $order, false);
         }
 
-        $order->setShippingAddress($shippingAddress);
-        $order->setBillingAddress($billingAddress);
+        $order
+                ->setShippingAddress($shippingAddress)
+                ->setBillingAddress($billingAddress)
+                ->setUser($user)
+        ;
 
         $this->em->getConnection()->beginTransaction();
 
@@ -75,7 +79,7 @@ class OrderManager {
      * @param bool $persistent
      * @throws \Exception
      */
-    public function addItem(Product $product, Order $order, $persistent = true) {
+    public function addItem(Product $product, Order &$order, $persistent = true) {
         $status = $order->getStatus();
 
         if (($status == Order::STATUS_NOTPAID) || ($status == Order::STATUS_WAITING_FOR_PAYMENT)) {
@@ -89,16 +93,7 @@ class OrderManager {
                 $order->addItem($orderItem);
             }
 
-            $order
-                    ->setSubtotal()
-                    ->setSubtotalAfterDiscounts()
-                    ->setFinalPriceBeforeTaxes()
-                    ->setFinalPrice()
-            ;
-            
-            $this->promotionManager->applyPromotions($order);
-            $this->taxManager->applyTaxes($order);
-
+            $this->refresh($order);
             $this->save($order, $persistent);
         } else {
             throw new \Exception('The current order cannot be changed', Response::HTTP_METHOD_NOT_ALLOWED);
@@ -111,7 +106,7 @@ class OrderManager {
      * @param Order $order
      * @param int $howMany
      */
-    public function increaseItemQuantity(OrderItem $item, Order $order, $howMany = 1, $persistent = true) {
+    public function increaseItemQuantity(OrderItem $item, Order &$order, $howMany = 1, $persistent = true) {
         $status = $order->getStatus();
 
         if (($status == Order::STATUS_NOTPAID) || ($status == Order::STATUS_WAITING_FOR_PAYMENT)) {
@@ -121,6 +116,7 @@ class OrderManager {
                 $order->addItem($item);
             }
 
+            $this->refresh($order);
             $this->save($order, $persistent);
         } else {
             throw new \Exception('The current order cannot be changed', Response::HTTP_METHOD_NOT_ALLOWED);
@@ -132,13 +128,39 @@ class OrderManager {
      * @param Order $order
      * @return type
      */
-    public function finalize(Order $order) {
+    public function finalize(Order &$order) {
         if ($order->getStatus() == Order::STATUS_COMPLETED || $order->getStatus() == Order::STATUS_PAID) {
             return;
         }
 
         $order->setStatus(Order::STATUS_COMPLETED);
         $this->em->flush();
+    }
+    
+    /**
+     * 
+     * @param Product $product
+     * @param Order $order
+     * @param boolean $persistent
+     * @throws \Exception
+     */
+    public function removeItem(Product $product, Order &$order, $persistent = true) {
+        $status = $order->getStatus();
+
+        if (($status == Order::STATUS_NOTPAID) || ($status == Order::STATUS_WAITING_FOR_PAYMENT)) {
+            if ($order->hasItemProduct($product)) {
+                $orderItem = $this->em->getRepository(OrderItem::class)
+                        ->findOneBy(array('order' => $order, 'product' => $product))
+                ;
+                
+                $order->removeItem($orderItem);
+                
+                $this->refresh($order);
+                $this->save($order, $persistent);
+            }
+        } else {
+            throw new \Exception('The current order cannot be changed', Response::HTTP_METHOD_NOT_ALLOWED);
+        }
     }
 
     /**
@@ -187,6 +209,29 @@ class OrderManager {
         if ($persistent === true) {
             $this->em->persist($order);
             $this->em->flush();
+        }
+    }
+    
+    /**
+     * 
+     * @param Order $order
+     * @throws \Exception
+     */
+    public function refresh(Order &$order) {
+        $status = $order->getStatus();
+
+        if (($status == Order::STATUS_NOTPAID) || ($status == Order::STATUS_WAITING_FOR_PAYMENT)) {
+            $order
+                    ->setSubtotal()
+                    ->setSubtotalAfterDiscounts()
+                    ->setFinalPriceBeforeTaxes()
+                    ->setFinalPrice()
+            ;
+            
+            $this->promotionManager->applyPromotions($order);
+            $this->taxManager->applyTaxes($order);
+        } else {
+            throw new \Exception('The current order cannot be changed', Response::HTTP_METHOD_NOT_ALLOWED);
         }
     }
 

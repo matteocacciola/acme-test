@@ -71,5 +71,38 @@ class OrderApiTest extends ApiTestCase {
         $this->assertEquals($response['status'], Order::STATUS_COMPLETED);
     }
     
+    /**
+     * 
+     */
+    public function testRemoveProduct() {
+        $product = $this->em->getRepository(Product::class)->find(1);
+        $order= $this->em->getRepository(Order::class)->find(1);
+        
+        $data = array(
+            'product_id' => $product->getBarcode(),
+            'receipt_id' => $order->getInvoiceNumber()
+        );
+        
+        $response = json_decode($this->putToApi($this->cashRegisterAuth, 'receipt', 'product/remove', $data), true);
+        
+        $this->assertArrayHasKey('invoiceNumber', $response);
+    }
+    
+    /**
+     * 
+     */
+    public function testGetSingle() {
+        $order = $this->em
+                ->getRepository(Order::class)
+                ->find(1)
+        ;
+        $invoiceNumber = $order->getInvoiceNumber();
+        
+        $response = $this->getFromApi($this->cashRegisterAuth, 'order', 'get-single', array('id' => $invoiceNumber));
+        $foundOrder = json_decode($response, true);
+        
+        $this->assertEquals($invoiceNumber, $foundOrder['invoiceNumber']);
+    }
+    
 }
 

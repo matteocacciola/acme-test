@@ -35,6 +35,11 @@ class User implements UserInterface {
      * @ORM\Column(type="string")
      */
     private $password;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Order", mappedBy="user")
+     */
+    protected $orders;
     
     /**
      * 
@@ -43,6 +48,7 @@ class User implements UserInterface {
      */
     public function __construct(string $email, string $password = '') {
         $this->update($password, $email);
+        $this->orders = new ArrayCollection();
     }
 
     /**
@@ -139,6 +145,15 @@ class User implements UserInterface {
         }
        
         return $this;
+    }
+    
+    /**
+     * Get orders
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getOrders() {
+        return $this->orders;
     }
 
 }

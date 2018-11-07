@@ -29,6 +29,13 @@ class Order {
     private $id;
 
     /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="orders")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL", nullable=true)
+     */
+    private $user;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="invoice_number", type="integer", nullable=false)
@@ -448,7 +455,23 @@ class Order {
      * @return boolean
      */
     public function hasItemProduct(Product $product) {
-        return $this->getItemsProducts($items)->contains($product);
+        return $this->getItemsProducts($this->items)->contains($product);
+    }
+    
+    /**
+     * @param \App\Entity\User $user
+     * @return Order
+     */
+    public function setUser($user) {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return \App\Entity\User
+     */
+    public function getUser() {
+        return $this->user;
     }
 
     /**

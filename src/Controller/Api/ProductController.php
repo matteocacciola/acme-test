@@ -51,7 +51,7 @@ class ProductController extends AbstractController {
      * 
      * Get all the products
      * 
-     * @Route("/get-all", name="acme.api.product.get-all")
+     * @Route("/get-all", name="acme.api.product.getall")
      * @Method({"GET"})
      * @IsGranted("ROLE_ADMIN")
      */
@@ -74,7 +74,7 @@ class ProductController extends AbstractController {
      * 
      * Get a single product
      * 
-     * @Route("/get-single", name="acme.api.product.get-single")
+     * @Route("/get-single", name="acme.api.product.getsingle")
      * @Method({"GET"})
      * @IsGranted("ROLE_CASH_REGISTER")
      */
