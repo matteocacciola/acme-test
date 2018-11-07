@@ -10,6 +10,12 @@ Finally, a lot of features more should be implemented (e.g. verification of ship
 of taxes according to the country, etc.). All of them are not considered here, since the test should be
 completed ASAP
 
+## Requirements
+* PHP >= 7.2
+* MySQL 5.7
+* Apache2 or Nginx
+* Symfony >= 4.1
+
 ## Installation
 After cloning the git, please you can run
 ```bash
