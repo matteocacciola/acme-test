@@ -15,6 +15,8 @@ use App\Manager\ProductManager;
  * @Route("/receipt")
  */
 class OrderController extends AbstractController {
+    
+    use \App\Controller\Traits\ControllerTrait;
 
     /**
      * 
@@ -41,7 +43,7 @@ class OrderController extends AbstractController {
             $code = Response::HTTP_OK;
             $body = $order->serialize();
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
 
@@ -74,7 +76,7 @@ class OrderController extends AbstractController {
             $code = Response::HTTP_OK;
             $body = $order->serialize();
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
 
@@ -103,7 +105,7 @@ class OrderController extends AbstractController {
             $code = Response::HTTP_OK;
             $body = $order->serialize();
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
 
@@ -132,7 +134,7 @@ class OrderController extends AbstractController {
             $code = Response::HTTP_OK;
             $body = $order->serialize();
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
 
@@ -165,7 +167,7 @@ class OrderController extends AbstractController {
             $code = Response::HTTP_OK;
             $body = $order->serialize();
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
 
@@ -191,7 +193,7 @@ class OrderController extends AbstractController {
             $body = $order->serialize();
             $code = Response::HTTP_OK;
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
         

@@ -19,6 +19,7 @@
         <env name="DATABASE_USER" value="root" />
         <env name="DATABASE_PASSWORD" value="ichtys" />
         <env name="DEFAULT_LOCALE" value="en" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
         <env name="SHELL_VERBOSITY" value="-1" />
         <!-- define your env variables for the test env here -->
     </php>

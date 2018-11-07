@@ -16,6 +16,8 @@ use App\Manager\ProductManager;
  * @Route("/product")
  */
 class ProductController extends AbstractController {
+    
+    use \App\Controller\Traits\ControllerTrait;
 
     /**
      * 
@@ -40,7 +42,7 @@ class ProductController extends AbstractController {
             $code = Response::HTTP_OK;
             $body = $product->serialize();
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
         
@@ -89,7 +91,7 @@ class ProductController extends AbstractController {
             $body = $product->serialize();
             $code = Response::HTTP_OK;
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
         

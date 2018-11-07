@@ -3,7 +3,6 @@
 namespace App\Manager;
 
 use Doctrine\Common\Persistence\ObjectManager;
-use App\Entity\Order;
 use App\Entity\Product;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,7 +34,7 @@ class ProductManager {
             throw new \Exception('Barcode is mandatory', Response::HTTP_BAD_REQUEST);
         }
         
-        $product = $this->em->getRepository(Order::class)->findOneBy(array(
+        $product = $this->em->getRepository(Product::class)->findOneBy(array(
             'barcode' => $barcode
         ));
         if (!($product)) {

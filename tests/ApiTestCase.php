@@ -45,14 +45,9 @@ class ApiTestCase extends KernelTestCase {
     /**
      * 
      */
-    public static function setUpBeforeClass() {
-        self::bootKernel();
-    }
-
-    /**
-     * 
-     */
     protected function setUp() {
+        self::bootKernel();
+        
         $this->client = new \GuzzleHttp\Client();
         $this->em = $this->getService('doctrine.orm.entity_manager');
         $this->baseUrl = $this->getParameter('api_domain') . DIRECTORY_SEPARATOR . 'api';

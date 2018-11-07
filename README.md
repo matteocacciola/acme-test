@@ -22,7 +22,7 @@ The package will be installed with all the required fixtures
 Please, `tests` folder contains the PHP Unit Tests required by your guidelines.
 Please, run a test with the usual command, e.g. (if you want to run the test #3):
 ```bash
-./bin/phpunit --filter tests/Controller/Api/ProductApiTest.php --filter testGetSingleProduct
+./bin/phpunit tests/Controller/Api/ProductApiTest.php --filter testGetSingleProduct
 ```
 
 ## Discounts

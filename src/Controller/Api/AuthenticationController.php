@@ -14,6 +14,8 @@ use App\Entity\User;
  * @Route("/authentication")
  */
 class AuthenticationController extends AbstractController {
+    
+    use \App\Controller\Traits\ControllerTrait;
 
     /**
      * @Route("/token", name="acme.api.authentication.token")
@@ -48,7 +50,7 @@ class AuthenticationController extends AbstractController {
             $body = array('token' => $token);
             $code = Response::HTTP_OK;
         } catch (\Exception $ex) {
-            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $code = $this->getExceptionCode($ex);
             $body = $ex->getMessage();
         }
         
