@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use App\Entity\Product;
 use App\Form\Type\ProductType;
+use App\Manager\ProductManager;
 
 /**
  * @Route("/product")
@@ -78,16 +79,21 @@ class ProductController extends AbstractController {
      * @IsGranted("ROLE_CASH_REGISTER")
      */
     public function getSingle(Request $request) {
-        $barcode = $request->get('id');
+        try {
+            $barcode = $request->get('id');
+            
+            /** @var ProductManager */
+            $manager = $this->get('app.manager.product');
+            $product = $manager->findOneByBarcodeOrThrowException($barcode);
+            
+            $body = $product->serialize();
+            $code = Response::HTTP_OK;
+        } catch (\Exception $ex) {
+            $code = ($ex->getCode() > 0) ? $ex->getCode() : $ex->getStatusCode();
+            $body = $ex->getMessage();
+        }
         
-        $product = $this
-                ->getDoctrine()
-                ->getManager()
-                ->getRepository(Product::class)
-                ->findOneBy(array('barcode' => $barcode))
-        ;
-        
-        return $this->json($product->serialize());
+        return $this->json($body, $code);
     }
 
 }

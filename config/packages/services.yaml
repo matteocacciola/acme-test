@@ -29,8 +29,65 @@ services:
         autoconfigure: true
         tags: [ 'doctrine.repository_service' ]
     
+    ## TOKEN ##
     app.token.authenticator:
         class: App\Security\TokenAuthenticator
         arguments:
             $em: '@doctrine.orm.entity_manager'
             $jwtEncoder: '@lexik_jwt_authentication.encoder'
+
+    ## MANAGERS ##
+    app.manager.promotion:
+        class: App\Manager\PromotionManager
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+    
+    app.manager.order:
+        class: App\Manager\OrderManager
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            $promotionManager: '@app.manager.promotion'
+            $taxManager: '@app.manager.tax'
+            
+    app.manager.product:
+        class: App\Manager\ProductManager
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+            
+    app.manager.tax:
+        class: App\Manager\TaxManager
+
+    ## PROMOTIONS ##
+    app.promotion.promotion_type:
+        class: App\Model\AbstractPromotion
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
+        abstract: true
+
+    app.promotion.promotion_type.buy_x_for_y:
+        autowire: false
+        autoconfigure: false
+        public: true
+        class: App\Model\Promotion\BuyXForYPromotion
+        parent: app.promotion.promotion_type
+        tags:
+            - {name: app.promotion.promotion}
+
+    app.promotion.promotion_type.buy_x_for_y_quantity:
+        autowire: false
+        autoconfigure: false
+        public: true
+        class: App\Model\Promotion\BuyXForYQuantityPromotion
+        parent: app.promotion.promotion_type
+        tags:
+            - {name: app.promotion.promotion}
+
+    app.promotion.promotion_type.event_sale:
+        autowire: false
+        autoconfigure: false
+        public: true
+        class: App\Model\Promotion\EventSalePromotion
+        parent: app.promotion.promotion_type
+        tags:
+            - {name: app.promotion.promotion}
+

@@ -36,6 +36,12 @@ class Product {
      * @ORM\JoinColumn(name="vat_class", nullable=false)
      */
     private $vatClass;
+    
+    /**
+     * @var boolean
+     * @ORM\Column(type="boolean", name="is_taxable", nullable=false, options={"default":true})
+     */
+    private $taxable = true;
 
     /**
      * 
@@ -117,10 +123,12 @@ class Product {
      */
     public function setVatClass(VatClass $vatClass): self {
         $this->vatClass = $vatClass;
+        
+        $this->setTaxable(true);
 
         return $this;
     }
-    
+
     /**
      * 
      * @return array
@@ -132,6 +140,47 @@ class Product {
             'cost' => $this->cost,
             'vat' => $this->getVatClass()->getPercentage()
         );
+    }
+
+    /**
+     * 
+     * @return float
+     */
+    public function getCurrentPrice(): float {
+        return $this->cost;
+    }
+
+    /**
+     * @param boolean $taxable
+     * @return Product
+     */
+    public function setTaxable($taxable) {
+        $this->taxable = $taxable;
+        
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getTaxable() {
+        return $this->taxable;
+    }
+
+    /**
+     * 
+     * @return boolean
+     */
+    public function isTaxable() {
+        return $this->getTaxable();
+    }
+    
+    /**
+     * 
+     * @return float
+     */
+    public function getTaxedPrice() {
+        return $this->cost * (1 + $this->getVatClass()->getPercentage());
     }
 
 }

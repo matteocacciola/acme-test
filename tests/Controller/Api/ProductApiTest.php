@@ -24,9 +24,9 @@ class ProductApiTest extends ApiTestCase {
             'vatClass' => $vat->getId()
         );
         
-        $response = $this->postToApi($this->adminAuth, 'product', 'add', $data);
+        $response = json_decode($this->postToApi($this->adminAuth, 'product', 'add', $data), true);
         
-        $this->assertJson($response);
+        $this->assertArrayHasKey('barcode', $response);
     }
     
     /**
@@ -49,7 +49,7 @@ class ProductApiTest extends ApiTestCase {
         ;
         $barcode = $product->getBarCode();
         
-        $response = $this->getFromApi($this->adminAuth, 'product', 'get-single', array('id' => $barcode));
+        $response = $this->getFromApi($this->cashRegisterAuth, 'product', 'get-single', array('id' => $barcode));
         $foundProduct = json_decode($response, true);
         
         $this->assertEquals($barcode, $foundProduct['barcode']);
